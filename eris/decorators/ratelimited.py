@@ -66,10 +66,11 @@ class RateLimit(object):
             if hitcount['minute'] < self.max_minute and hitcount['fs'] < self.max_fs:
                 res = await f(*args, **kwargs)
                 if res is not None:
-                    self.__class__.incr(f.__name__ + ':' + key)
+                    self.__class__.incr(fqn + ':' + key)
+                    return res
             else:
                 # HOOK_EAT_NONE
-                logger.warning("function %s hit rate limit", f.__name__)
+                logger.warning("function %s hit rate limit", fqn)
                 return 0
 
         return wrapped_f

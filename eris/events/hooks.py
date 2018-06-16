@@ -55,4 +55,5 @@ class Hook:
             return any([typematch, contains])
 
     def call(self, event):
+        """ Call the callback for this hook. """
         return self.callback(event)

@@ -1,3 +1,4 @@
+""" Eris example module that greets people. """
 from eris.modules.base import ModuleBase
 from eris.events.hooks import Hook, HOOK_EAT_NONE
 from eris.events.types.eventbase import EventBase
@@ -22,6 +23,7 @@ class GreeterModule(ModuleBase):
         splits = actual.content.split(' ')
 
         if splits[0].lower() == 'hi' and len(splits) == 1:
-            await self.client.send_message(actual.channel, "Hello %s!" % actual.author.name)
+            name = actual.author.nick if hasattr(actual.author, 'nick') and actual.author.nick else actual.author.name
+            await self.client.send_message(actual.channel, "Hello %s!" % name)
 
         return HOOK_EAT_NONE

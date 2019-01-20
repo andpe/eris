@@ -25,8 +25,7 @@ class GreeterModule(ModuleBase):
             return False
 
     @HookPrecondition(handle_hi_precondition)
-    @AdminOnly()
-    @RateLimit(2, 1, 'event', cb=lambda x: x.actual.channel)
+    @RateLimit(3, 1, 'event', cb=lambda x: x.actual.channel)
     async def handle_hi(self, event: EventBase) -> int:
         """ Handle messages containing "hi" """
 

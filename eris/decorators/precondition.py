@@ -1,6 +1,9 @@
 from eris.events.hooks import HOOK_EAT_NONE
 
+
 class HookPrecondition:
+
+    """ Handle advanced preconditions to a hook. """
 
     def __init__(self, cb):
         self.cb = cb

@@ -28,6 +28,7 @@ class AdminOnly(object):
 
         async def wrapped_f(*args, **kwargs):
             event: EventBase = args[self.offset]
+
             if str(event.actual.author.id) in self.__class__.config['admins']:
                 res = await f(*args, **kwargs)
                 return res

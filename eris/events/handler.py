@@ -27,6 +27,11 @@ class EventHandler(object):
             mod[PRIO_LOW] = OrderedDict()
             self.hooks[module] = mod
 
+    def unregister_module(self, module: str):
+        """ Unregister a module from the EventHandler. """
+        if module in self.hooks:
+            del self.hooks[module]
+
     async def handle(self, event: EventBase):
         """ Handle the events by looking through hooks. """
         eat = 0

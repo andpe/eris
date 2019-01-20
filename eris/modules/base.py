@@ -17,7 +17,7 @@ class ModuleBase(object):
 
     def unregister(self):
         """ Deregister the events with the eventhandler. """
-        raise NotImplementedError("This method has not been implemented on this module")
+        self.eventhandler.unregister_module(str(self.__class__))
 
     def register_hook(self, hook):
         """ Register a hook with the eventhandler """

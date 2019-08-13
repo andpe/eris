@@ -71,6 +71,13 @@ class Core(discord.Client):
 
         logger.info("Client is ready and listening")
 
+    async def on_voice_state_update(self, member: discord.Member, before: discord.VoiceState, after: discord.VoiceState):
+        if self.eventhandler:
+            event = EventFactory.create('voicestate', (member, before, after))
+            await self.eventhandler.handle(event)
+        else:
+            logger.warning("No event handler registered... somehow, carrying on for now.")
+
     async def on_reaction_add(self, reaction: discord.Reaction, user: discord.User):
         """ React to users adding reactions to messages. """
         if self.eventhandler:

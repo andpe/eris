@@ -6,10 +6,10 @@ setup(
     name='Eris',
     version='0.1',
     # uncomment when there are tests.
-    #test_suite='tests'
+    # test_suite='tests'
     packages=find_packages(),
     install_requires=[
-        'discord.py==0.16.12',
+        'discord.py==1.2.3',
         'jsonschema==2.6.0'
     ]
 )

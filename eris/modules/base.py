@@ -1,7 +1,8 @@
 """ Base module for bot modules. """
 
-from eris.events.handler import EventHandler, PRIO_HIGH, PRIO_MEDIUM, PRIO_LOW
+from eris.events.handler import EventHandler, PRIO_LOW
 from discord.client import Client
+
 
 class ModuleBase(object):
 

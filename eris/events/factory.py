@@ -3,6 +3,7 @@ from eris.events.types.eventbase import EventBase
 from discord import Message
 import inspect
 
+
 class EventFactory(object):
 
     """ Factory for creating events to pass to the event handler. """

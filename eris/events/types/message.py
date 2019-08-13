@@ -5,6 +5,8 @@ from discord.message import Message
 class MessageEvent(EventBase):
 
     def __init__(self, message: Message):
+        super().__init__(message)
+
         self.type = 'message'
         self.actual = message
         self.body = message.content

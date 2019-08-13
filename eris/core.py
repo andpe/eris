@@ -57,8 +57,8 @@ class Core(discord.Client):
         for module in modules:
             logger.debug("Loading module %(name)s (%(path)s)", module)
             # Build module and register some properties on it.
-            Mod: type = import_module(module['path'])
-            mod: ModuleBase = getattr(Mod, module['name'])()
+            modcls: type = import_module(module['path'])
+            mod: ModuleBase = getattr(modcls, module['name'])()
             mod.client = self
             mod.eventhandler = self.eventhandler
 

@@ -1,6 +1,5 @@
 from eris.events.types.eventbase import EventBase
 
-
 HOOK_EAT_NONE = 0
 HOOK_EAT_PRIO = 1
 HOOK_EAT_MODULE = 2
@@ -9,7 +8,6 @@ HOOK_EAT_ALL = HOOK_EAT_NONE | HOOK_EAT_PRIO | HOOK_EAT_MODULE | HOOK_EAT_SYSTEM
 
 
 class Hook:
-
     """ Hook object used by the EventHandler to filter events and call the appropriate functions on modules. """
 
     name: str = None
@@ -18,7 +16,8 @@ class Hook:
     match_criteria: str = 'all'
     callback: callable = None
 
-    def __init__(self, name: str, type: str, callback: callable=None, contains: str=None, match_criteria: str='all'):
+    def __init__(self, name: str, type: str, callback: callable = None, contains: str = None,
+                 match_criteria: str = 'all'):
         """ Create a new hook.
 
         :param name: Name of the hook, must be unique for the module.

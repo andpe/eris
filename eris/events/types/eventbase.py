@@ -3,6 +3,9 @@ class EventBase(object):
     actual = None
     type = None
 
+    def __init__(self, *args, **kwargs):
+        pass
+
     @classmethod
     def get(cls, data):
         return cls(data)

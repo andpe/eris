@@ -1,24 +1,26 @@
 from time import time
 import logging
 
+from decorators import BaseDecorator
+
 logging.basicConfig()
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 
-class RateLimit(object):
+class RateLimit(BaseDecorator):
+    """ Rate limit commands per minute or per five-second burst. """
 
     max_minute: int = None
     max_fs: int = None
-    kw_key: str = None
     cb: callable = None
     hits: dict = None
+    ttl = 120
 
-    def __init__(self, max_minute: int, max_fs: int, kw_key: str=None, cb: callable=None, static_key=None):
+    def __init__(self, max_minute: int, max_fs: int, cb: callable = None, static_fqn=None):
         self.max_minute = max_minute
         self.max_fs = max_fs
-        self.kw_key = kw_key
-        self.cb = cb if cb is not None else lambda kw: kw
-        self.static_key = static_key
+        self.cb = cb
+        self.static_fqn = static_fqn
 
         if self.__class__.hits is None:
             self.__class__.hits = {}
@@ -40,7 +42,7 @@ class RateLimit(object):
     def incr(cls, bucket):
 
         if bucket in cls.hits:
-            cls.hits[bucket] = list(filter(lambda x: time() - x < 120, cls.hits[bucket]))
+            cls.hits[bucket] = list(filter(lambda x: time() - x < cls.ttl, cls.hits[bucket]))
         else:
             cls.hits[bucket] = []
 
@@ -48,19 +50,17 @@ class RateLimit(object):
         return cls.get(bucket)
 
     def __call__(self, f):
-        # Make sure we haven't exceeded the
-
         async def wrapped_f(*args, **kwargs):
-            if isinstance(self.kw_key, str):
-                key = self.kw_key
+            if self.cb is not None:
+                key = self.cb(args[self._EVENT_OFFSET])
             else:
-                key = self.cb(kwargs[self.kw_key])
+                key = None
 
             fqn = '.'.join([
                 f.__module__, f.__qualname__
-            ]) if self.static_key is None else self.static_key
+            ]) if self.static_fqn is None else self.static_fqn
 
-            hitcount = self.__class__.get(fqn + ':' + key)
+            hitcount = self.__class__.get(fqn + ':' + str(key))
 
             # Make sure we're under the rate limit before calling.
             if hitcount['minute'] < self.max_minute and hitcount['fs'] < self.max_fs:
@@ -70,7 +70,7 @@ class RateLimit(object):
                     return res
             else:
                 # HOOK_EAT_NONE
-                logger.warning("function %s hit rate limit", fqn)
+                LOGGER.warning("function %s hit rate limit", fqn)
                 return 0
 
         return wrapped_f

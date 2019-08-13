@@ -11,11 +11,11 @@ class AdminModule(ModuleBase):
     def is_blocked(self, user: User):
         pass
 
-    @AdminOnly
+    @AdminOnly()
     def handle_block(self, event: EventBase):
         pass
 
-    @AdminOnly
+    @AdminOnly()
     def handle_unblock(self, event: EventBase):
         pass
 

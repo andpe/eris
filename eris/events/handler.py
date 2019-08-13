@@ -61,4 +61,5 @@ class EventHandler(object):
         if module not in self.hooks:
             self.register_module(module)
 
+        # TODO: Verify that the hook fulfills the expected contract.
         self.hooks[module][priority][hook.name] = hook

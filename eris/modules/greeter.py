@@ -8,6 +8,7 @@ from eris.decorators.admin import AdminOnly
 import discord
 
 
+# noinspection PyMethodMayBeStatic
 class GreeterModule(ModuleBase):
 
     def register(self):
@@ -24,13 +25,14 @@ class GreeterModule(ModuleBase):
         else:
             return False
 
+    @AdminOnly()
     @HookPrecondition(handle_hi_precondition)
-    @RateLimit(3, 1, 'event', cb=lambda x: x.actual.channel)
+    @RateLimit(3, 1, cb=lambda x: x.actual.channel)
     async def handle_hi(self, event: EventBase) -> int:
         """ Handle messages containing "hi" """
 
         actual: discord.Message = event.actual
         name = actual.author.nick if hasattr(actual.author, 'nick') and actual.author.nick else actual.author.name
-        await self.client.send_message(actual.channel, "Hello %s!" % name)
+        await actual.channel.send("Hello %s!" % name)
 
         return HOOK_EAT_NONE

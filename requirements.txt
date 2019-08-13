@@ -1,2 +1,2 @@
-discord.py==0.16.12
+discord.py==1.2.3
 jsonschema==2.6.0

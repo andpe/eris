@@ -1,7 +1,7 @@
 from time import time
 import logging
 
-from decorators import BaseDecorator
+from eris.decorators import BaseDecorator
 
 logging.basicConfig()
 LOGGER = logging.getLogger(__name__)

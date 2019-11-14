@@ -1,3 +1,5 @@
+from eris.events.hooks import HOOK_EAT_NONE
+
 from eris.events.types.eventbase import EventBase
 from eris.decorators import BaseDecorator
 
@@ -28,10 +30,13 @@ class AdminOnly(BaseDecorator):
         async def wrapped_f(*args, **kwargs):
             event: EventBase = args[self._EVENT_OFFSET]
 
+            if 'admins' not in self.__class__.config:
+                return HOOK_EAT_NONE
+
             if str(event.actual.author.id) in self.__class__.config['admins']:
                 res = await f(*args, **kwargs)
                 return res
             else:
-                return 0
+                return HOOK_EAT_NONE
 
         return wrapped_f

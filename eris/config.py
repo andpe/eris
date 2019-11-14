@@ -45,5 +45,11 @@ class Config:
     def __getitem__(self, item):
         if item in self.__dict__:
             return self.__dict__[item]
-        else:
+        elif item in self.config:
             return self.config[item]
+        else:
+            raise KeyError("Key %s not in config" % (item,))
+
+    def __contains__(self, item):
+        return item in self.__dict__ or\
+            item in self.config

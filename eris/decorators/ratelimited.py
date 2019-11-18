@@ -1,5 +1,8 @@
+""" Ratelimiting decorator for hook callbacks. """
 from time import time
 import logging
+
+from eris.events.hooks import HOOK_EAT_NONE
 
 from eris.decorators import BaseDecorator
 
@@ -12,14 +15,14 @@ class RateLimit(BaseDecorator):
 
     max_minute: int = None
     max_fs: int = None
-    cb: callable = None
+    callback: callable = None
     hits: dict = None
     ttl = 120
 
-    def __init__(self, max_minute: int, max_fs: int, cb: callable = None, static_fqn=None):
+    def __init__(self, max_minute: int, max_fs: int, callback: callable = None, static_fqn=None):
         self.max_minute = max_minute
         self.max_fs = max_fs
-        self.cb = cb
+        self.callback = callback
         self.static_fqn = static_fqn
 
         if self.__class__.hits is None:
@@ -27,20 +30,21 @@ class RateLimit(BaseDecorator):
 
     @classmethod
     def get(cls, bucket):
+        """ Get the current number of hits for this bucket. """
         if bucket in cls.hits:
             return {
                 'minute': len(list(filter(lambda x: time() - x <= 60, cls.hits[bucket]))),
                 'fs': len(list(filter(lambda x: time() - x <= 5, cls.hits[bucket])))
             }
-        else:
-            return {
-                'minute': 0,
-                'fs': 0
-            }
+
+        return {
+            'minute': 0,
+            'fs': 0
+        }
 
     @classmethod
     def incr(cls, bucket):
-
+        """ Increase the hit counter for this bucket. """
         if bucket in cls.hits:
             cls.hits[bucket] = list(filter(lambda x: time() - x < cls.ttl, cls.hits[bucket]))
         else:
@@ -49,28 +53,28 @@ class RateLimit(BaseDecorator):
         cls.hits[bucket].append(time())
         return cls.get(bucket)
 
-    def __call__(self, f):
+    def __call__(self, func):
+        """ Handle the function call and wrap. """
         async def wrapped_f(*args, **kwargs):
-            if self.cb is not None:
-                key = self.cb(args[self._EVENT_OFFSET])
+            if self.callback is not None:
+                key = self.callback(args[self._EVENT_OFFSET])
             else:
                 key = None
 
             fqn = '.'.join([
-                f.__module__, f.__qualname__
+                func.__module__, func.__qualname__
             ]) if self.static_fqn is None else self.static_fqn
 
             hitcount = self.__class__.get(fqn + ':' + str(key))
 
             # Make sure we're under the rate limit before calling.
             if hitcount['minute'] < self.max_minute and hitcount['fs'] < self.max_fs:
-                res = await f(*args, **kwargs)
+                res = await func(*args, **kwargs)
                 if res is not None:
                     self.__class__.incr(fqn + ':' + key)
                     return res
-            else:
-                # HOOK_EAT_NONE
-                LOGGER.warning("function %s hit rate limit", fqn)
-                return 0
+
+            LOGGER.warning("function %s hit rate limit", fqn)
+            return HOOK_EAT_NONE
 
         return wrapped_f

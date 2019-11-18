@@ -40,15 +40,18 @@ class Config:
         return self.config['modules']
 
     def get_token(self) -> str:
+        """ Get the bot token. """
         return self.config['token']
 
     def __getitem__(self, item):
         if item in self.__dict__:
             return self.__dict__[item]
-        elif item in self.config:
+
+        if item in self.config:
             return self.config[item]
-        else:
-            raise KeyError("Key %s not in config" % (item,))
+
+        # If we hit neither of the ifs above something is wonky.
+        raise KeyError("Key %s not in config" % (item,))
 
     def __contains__(self, item):
         return item in self.__dict__ or\

@@ -1,8 +1,12 @@
-from eris.events.types.eventbase import EventBase
+""" Message type event. """
 from discord.message import Message
+
+from eris.events.types.eventbase import EventBase
 
 
 class MessageEvent(EventBase):
+
+    """ Message-handling event class. """
 
     def __init__(self, message: Message):
         super().__init__(message)
@@ -12,6 +16,6 @@ class MessageEvent(EventBase):
         self.body = message.content
 
     @classmethod
-    def matches(cls, type: str, data: any):
+    def matches(cls, event_type: str, data: any):
         """ This class only handles messages from Discord. """
-        return isinstance(data, Message)
+        return event_type == 'message' and isinstance(data, Message)

@@ -1,15 +1,18 @@
 """ Eris example module that greets people. """
-from eris.modules.base import ModuleBase
+import discord
+
+from eris.decorators.admin import AdminOnly
+from eris.decorators.precondition import HookPrecondition
+from eris.decorators.ratelimited import RateLimit
 from eris.events.hooks import Hook, HOOK_EAT_NONE
 from eris.events.types.eventbase import EventBase
-from eris.decorators.ratelimited import RateLimit
-from eris.decorators.precondition import HookPrecondition
-from eris.decorators.admin import AdminOnly
-import discord
+from eris.modules.base import ModuleBase
 
 
 # noinspection PyMethodMayBeStatic
 class GreeterModule(ModuleBase):
+
+    """ Example module that greets certain users when they say 'hi' """
 
     def register(self):
         hook = Hook('hi hook', 'message', self.handle_hi)
@@ -18,16 +21,18 @@ class GreeterModule(ModuleBase):
     def unregister(self):
         pass
 
+    # pylint: disable=R0201
     def handle_hi_precondition(self, event: EventBase):
+        """ Handle people saying hi. """
         splits = event.actual.content.split(' ')
         if splits[0].lower() == 'hi' and len(splits) == 1:
             return True
-        else:
-            return False
+
+        return False
 
     @AdminOnly()
     @HookPrecondition(handle_hi_precondition)
-    @RateLimit(3, 1, cb=lambda x: x.actual.channel)
+    @RateLimit(3, 1, callback=lambda x: x.actual.channel)
     async def handle_hi(self, event: EventBase) -> int:
         """ Handle messages containing "hi" """
 

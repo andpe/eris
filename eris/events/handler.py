@@ -1,11 +1,12 @@
+""" EventHandler implementation for Eris. """
 from collections import OrderedDict
 
 from eris.events.types.eventbase import EventBase
-from eris.events.hooks import *
+from eris.events.hooks import HOOK_EAT_PRIO, HOOK_EAT_MODULE, HOOK_EAT_SYSTEM, Hook
 from eris.events.consts import PRIO_LOW, PRIO_MEDIUM, PRIO_HIGH
 
 
-class EventHandler(object):
+class EventHandler:
 
     """ Core event handler for the discord bot. """
 
@@ -20,12 +21,14 @@ class EventHandler(object):
         """ Register a module with the event handler. """
         if module in self.hooks:
             return False
-        else:
-            mod = OrderedDict()
-            mod[PRIO_HIGH] = OrderedDict()
-            mod[PRIO_MEDIUM] = OrderedDict()
-            mod[PRIO_LOW] = OrderedDict()
-            self.hooks[module] = mod
+
+        mod = OrderedDict()
+        mod[PRIO_HIGH] = OrderedDict()
+        mod[PRIO_MEDIUM] = OrderedDict()
+        mod[PRIO_LOW] = OrderedDict()
+        self.hooks[module] = mod
+
+        return True
 
     def unregister_module(self, module: str):
         """ Unregister a module from the EventHandler. """

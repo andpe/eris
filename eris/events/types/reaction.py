@@ -1,11 +1,16 @@
-from eris.events.types.eventbase import EventBase
+""" Reaction type event. """
 from collections import namedtuple
+
 from discord.reaction import Reaction
+
+from eris.events.types.eventbase import EventBase
 
 ReactionTuple = namedtuple('ReactionTuple', ['action', 'reaction', 'user'])
 
 
 class ReactionEvent(EventBase):
+
+    """ A wrapper class for reaction events on Discord. """
 
     def __init__(self, data: tuple):
         super().__init__(data)
@@ -14,9 +19,11 @@ class ReactionEvent(EventBase):
         self.body = None
 
     @classmethod
-    def matches(cls, type, data):
+    def matches(cls, event_type, data):
         try:
-            if len(data) > 0:
+            if data:
                 return isinstance(data[1], Reaction)
-        except:
-            return False
+        except IndexError:
+            pass
+
+        return False

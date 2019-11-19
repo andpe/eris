@@ -1,3 +1,7 @@
+""" Hook module.
+
+Contains the definition of a hook and some useful constants.
+"""
 from eris.events.types.eventbase import EventBase
 
 HOOK_EAT_NONE = 0
@@ -16,7 +20,7 @@ class Hook:
     match_criteria: str = 'all'
     callback: callable = None
 
-    def __init__(self, name: str, type: str, callback: callable = None, contains: str = None,
+    def __init__(self, name: str, _type: str, callback: callable = None, contains: str = None,
                  match_criteria: str = 'all'):
         """ Create a new hook.
 
@@ -32,7 +36,7 @@ class Hook:
         :type match_criteria: str
         """
         self.name = name
-        self.type = type
+        self.type = _type
         self.callback = callback
         self.contains = contains
         self.match_criteria = match_criteria
@@ -50,8 +54,11 @@ class Hook:
 
         if self.match_criteria == 'all':
             return all([typematch, contains])
-        elif self.match_criteria == 'any':
+
+        if self.match_criteria == 'any':
             return any([typematch, contains])
+
+        return False
 
     def call(self, event):
         """ Call the callback for this hook. """

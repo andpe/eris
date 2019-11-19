@@ -1,10 +1,11 @@
 """ Base module for bot modules. """
 
-from eris.events.handler import EventHandler, PRIO_LOW
 from discord.client import Client
 
+from eris.events.handler import EventHandler, PRIO_LOW
 
-class ModuleBase(object):
+
+class ModuleBase:
 
     """ Modules should always implement a few methods that lets us do what we need to register events. """
 

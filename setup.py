@@ -9,7 +9,7 @@ setup(
     # test_suite='tests'
     packages=find_packages(),
     install_requires=[
-        'discord.py==1.2.3',
+        'discord.py==1.2.5',
         'jsonschema==2.6.0'
     ]
 )

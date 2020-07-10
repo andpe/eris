@@ -2,8 +2,6 @@
 import inspect
 from importlib import import_module
 
-from typing import Type
-
 from eris.events.types.eventbase import EventBase
 
 
@@ -15,6 +13,7 @@ class EventFactory:
 
     @staticmethod
     def init():
+        """ Initialize the list of classes that handle events for us. """
         events = import_module('eris.events.types', '*')
 
         # Find subclasses of EventBase

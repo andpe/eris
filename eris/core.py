@@ -1,4 +1,5 @@
 """ Main module for the discord bot. """
+import json
 import logging
 from importlib import import_module
 
@@ -29,7 +30,6 @@ class Core(discord.Client):
 
         # Load the configuration and validate it.
         with open(config, 'r') as configfile:
-            import json
             cfg = json.load(configfile)
         self.config = Config(cfg)
 

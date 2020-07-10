@@ -1,3 +1,4 @@
+""" Hook decorator. """
 import logging
 
 from eris.decorators import BaseDecorator
@@ -7,6 +8,9 @@ LOGGER = logging.getLogger(__name__)
 
 
 class Hook(BaseDecorator):
+
+    """ Hook decorator, used for more easily setting up handlers for messages. """
+
     hook: EventHook = None
 
     def __init__(self, name: str, event_type: str, contains: str = '', match_criteria: str = 'all'):

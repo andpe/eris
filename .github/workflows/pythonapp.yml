@@ -20,5 +20,5 @@ jobs:
     - name: Lint with pylint
       run: |
         ls -lR
-        pip install pylint==2.3.0
+        pip install pylint>=2.3.0
         pylint eris/

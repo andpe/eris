@@ -1,4 +1,5 @@
 """ Ratelimiting decorator for hook callbacks. """
+from functools import wraps
 from time import time
 import logging
 
@@ -55,6 +56,7 @@ class RateLimit(BaseDecorator):
 
     def __call__(self, func):
         """ Handle the function call and wrap. """
+        @wraps(func)
         async def wrapped_f(*args, **kwargs):
             if self.callback is not None:
                 key = self.callback(args[self._EVENT_OFFSET])

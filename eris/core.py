@@ -1,4 +1,5 @@
 """ Main module for the discord bot. """
+import json
 import logging
 from importlib import import_module
 
@@ -29,11 +30,11 @@ class Core(discord.Client):
 
         # Load the configuration and validate it.
         with open(config, 'r') as configfile:
-            import json
             cfg = json.load(configfile)
         self.config = Config(cfg)
 
         AdminOnly.register_config(self.config)
+        EventFactory.init()
 
         # Carry on as normal.
         super().__init__(*args, **kwargs)
@@ -66,8 +67,9 @@ class Core(discord.Client):
             self.modules[module['name']] = mod
 
             LOGGER.debug("Registering hooks...")
-            # Register events.
+            # Register events and scan for hook decorators.
             mod.register()
+            mod.scan_decorators()
 
         LOGGER.info("Client is ready and listening")
 

@@ -3,6 +3,7 @@
 Limits the use of a command to a predefined list of admins.
 """
 import logging
+from functools import wraps
 
 from eris.config import Config
 from eris.decorators import BaseDecorator
@@ -33,6 +34,7 @@ class AdminOnly(BaseDecorator):
 
     def __call__(self, func):
         """ Handle the function call. """
+        @wraps(func)
         async def wrapped_f(*args, **kwargs):
             event: EventBase = args[self._EVENT_OFFSET]
 

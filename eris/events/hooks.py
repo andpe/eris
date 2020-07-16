@@ -63,3 +63,12 @@ class Hook:
     def call(self, event):
         """ Call the callback for this hook. """
         return self.callback(event)
+
+    def __repr__(self):
+        return "<Hook name: '%s', type: %s, callback: %s, contains: '%s', criteria: %s>" % (
+            self.name,
+            self.type,
+            self.callback.__qualname__ if self.callback else '',
+            self.contains,
+            self.match_criteria
+        )

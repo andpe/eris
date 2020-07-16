@@ -1,4 +1,6 @@
 """ Base module for bot modules. """
+import inspect
+import logging
 
 from discord.client import Client
 
@@ -12,6 +14,22 @@ class ModuleBase:
     eventhandler: EventHandler = None
     default_priority: int = PRIO_LOW
     client: Client = None
+    LOGGER = None
+
+    def __init__(self):
+        self.LOGGER = logging.getLogger('.'.join([
+            self.__class__.__module__, self.__class__.__qualname__
+        ]))
+
+    def scan_decorators(self):
+        """ This method will scan the implementing class for decorated methods. """
+        methods = inspect.getmembers(self, predicate=inspect.ismethod)
+        for info in methods:
+            if hasattr(info[1], 'hooks'):
+                self.LOGGER.debug("Found hooks list on %s", info[1].__qualname__)
+                for hook in info[1].hooks:
+                    hook.callback = info[1]
+                    self.register_hook(hook)
 
     def register(self):
         """ Register events with the eventhandler """
@@ -23,4 +41,5 @@ class ModuleBase:
 
     def register_hook(self, hook):
         """ Register a hook with the eventhandler """
-        self.eventhandler.register_handler(str(self.__class__), self.default_priority, hook)
+        self.LOGGER.debug('Registering hook (%r) for %s (prio: %s)', hook, str(self.__class__.__qualname__), self.default_priority)
+        self.eventhandler.register_handler(str(self.__class__.__qualname__), self.default_priority, hook)

@@ -17,7 +17,9 @@ class ModuleBase:
     LOGGER = None
 
     def __init__(self):
-        self.LOGGER = logging.getLogger(__name__)
+        self.LOGGER = logging.getLogger('.'.join([
+            self.__class__.__module__, self.__class__.__qualname__
+        ]))
 
     def scan_decorators(self):
         """ This method will scan the implementing class for decorated methods. """

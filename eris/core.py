@@ -41,6 +41,9 @@ class Core(discord.Client):
 
     async def on_message(self, message):
         """ Handles incoming messages. """
+        if not self.is_ready():
+            LOGGER.warning("Ignored event that arrived before we were ready.")
+            return
 
         if self.eventhandler:
             event = EventFactory.create('message', message)
@@ -50,6 +53,38 @@ class Core(discord.Client):
 
     async def on_ready(self):
         """ Handles the bot being ready for action."""
+        for guild in self.guilds:
+            LOGGER.info("Joined %s (%d)", guild.name, guild.id)
+
+        LOGGER.info("Client is ready and listening")
+
+    async def on_voice_state_update(self, member: discord.Member, before: discord.VoiceState, after: discord.VoiceState):
+        """ React to users changing their voice states. """
+        if not self.is_ready():
+            LOGGER.warning("Ignored event that arrived before we were ready.")
+            return
+
+        if self.eventhandler:
+            event = EventFactory.create('voicestate', (member, before, after))
+            await self.eventhandler.handle(event)
+        else:
+            LOGGER.warning("No event handler registered... somehow, carrying on for now.")
+
+    async def on_reaction_add(self, reaction: discord.Reaction, user: discord.User):
+        """ React to users adding reactions to messages. """
+        if not self.is_ready():
+            LOGGER.warning("Ignored event that arrived before we were ready.")
+            return
+
+        if self.eventhandler:
+            event = EventFactory.create('reaction', ('add', reaction, user))
+            await self.eventhandler.handle(event)
+        else:
+            LOGGER.warning("No event handler registered... somehow, carrying on for now.")
+
+    def run(self, *args, **kwargs):
+        LOGGER.info("Starting up")
+
         modules = self.config.get_modules()
         LOGGER.info("Loading bot with the following modules loaded: %s", ', '.join(list(map(
             lambda m: m['name'], modules
@@ -71,26 +106,6 @@ class Core(discord.Client):
             mod.register()
             mod.scan_decorators()
 
-        LOGGER.info("Client is ready and listening")
-
-    async def on_voice_state_update(self, member: discord.Member, before: discord.VoiceState, after: discord.VoiceState):
-        """ React to users changing their voice states. """
-        if self.eventhandler:
-            event = EventFactory.create('voicestate', (member, before, after))
-            await self.eventhandler.handle(event)
-        else:
-            LOGGER.warning("No event handler registered... somehow, carrying on for now.")
-
-    async def on_reaction_add(self, reaction: discord.Reaction, user: discord.User):
-        """ React to users adding reactions to messages. """
-        if self.eventhandler:
-            event = EventFactory.create('reaction', ('add', reaction, user))
-            await self.eventhandler.handle(event)
-        else:
-            LOGGER.warning("No event handler registered... somehow, carrying on for now.")
-
-    def run(self, *args, **kwargs):
-        LOGGER.info("Starting up")
         super().run(
             *((self.config.get_token(),) + args),
             **kwargs

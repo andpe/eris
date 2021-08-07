@@ -29,8 +29,11 @@ class Core(discord.Client):
         self.modules = {}
 
         # Load the configuration and validate it.
-        with open(config, 'r') as configfile:
-            cfg = json.load(configfile)
+        if isinstance(config, dict):
+            cfg = config
+        else:
+            with open(config, 'r') as configfile:
+                cfg = json.load(configfile)
         self.config = Config(cfg)
 
         AdminOnly.register_config(self.config)

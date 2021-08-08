@@ -2,6 +2,8 @@
 import json
 import logging
 from importlib import import_module
+from types import ModuleType
+from typing import Union
 
 import discord
 
@@ -23,15 +25,21 @@ class Core(discord.Client):
     config = None
     modules = None
 
-    def __init__(self, config, *args, **kwargs):
+    def __init__(self, config: Union[str, Config], *args, **kwargs):
         """ Create a new bot with the specified config. """
         self.eventhandler = EventHandler()
         self.modules = {}
 
-        # Load the configuration and validate it.
-        with open(config, 'r') as configfile:
-            cfg = json.load(configfile)
-        self.config = Config(cfg)
+        if isinstance(config, str):
+            # Load the configuration and validate it.
+            with open(config, 'r') as configfile:
+                cfg = json.load(configfile)
+
+            self.config = Config.parse_obj(cfg)
+        elif isinstance(config, Config):
+            self.config = config
+        else:
+            raise TypeError("config should be of either an instance or sublcass of eris.Config")
 
         AdminOnly.register_config(self.config)
         EventFactory.init()
@@ -87,19 +95,19 @@ class Core(discord.Client):
 
         modules = self.config.get_modules()
         LOGGER.info("Loading bot with the following modules loaded: %s", ', '.join(list(map(
-            lambda m: m['name'], modules
+            lambda m: m.name, modules
         ))))
 
         for module in modules:
             LOGGER.debug("Loading module %(name)s (%(path)s)", module)
             # Build module and register some properties on it.
-            modcls: type = import_module(module['path'])
-            mod: ModuleBase = getattr(modcls, module['name'])()
+            modcls: ModuleType = import_module(module.path)
+            mod: ModuleBase = getattr(modcls, module.name)()
             mod.client = self
             mod.eventhandler = self.eventhandler
 
             # Register it with the core.
-            self.modules[module['name']] = mod
+            self.modules[module.name] = mod
 
             LOGGER.debug("Registering hooks...")
             # Register events and scan for hook decorators.

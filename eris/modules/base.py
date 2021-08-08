@@ -1,19 +1,25 @@
 """ Base module for bot modules. """
+from __future__ import annotations
+
 import inspect
 import logging
+from typing import TypeVar, Generic, overload
 
 from discord.client import Client
 
 from eris.events.handler import EventHandler, PRIO_LOW
 
 
-class ModuleBase:
+ClientType = TypeVar('ClientType', bound=Client)
+
+
+class GenericModuleBase(Generic[ClientType]):
 
     """ Modules should always implement a few methods that lets us do what we need to register events. """
 
     eventhandler: EventHandler = None
     default_priority: int = PRIO_LOW
-    client: Client = None
+    client: ClientType = None
     LOGGER = None
 
     def __init__(self):
@@ -43,3 +49,6 @@ class ModuleBase:
         """ Register a hook with the eventhandler """
         self.LOGGER.debug('Registering hook (%r) for %s (prio: %s)', hook, str(self.__class__.__qualname__), self.default_priority)
         self.eventhandler.register_handler(str(self.__class__.__qualname__), self.default_priority, hook)
+
+
+ModuleBase = GenericModuleBase[Client]

@@ -3,12 +3,11 @@ from __future__ import annotations
 
 import inspect
 import logging
-from typing import TypeVar, Generic, overload
+from typing import TypeVar, Generic
 
 from discord.client import Client
 
 from eris.events.handler import EventHandler, PRIO_LOW
-
 
 ClientType = TypeVar('ClientType', bound=Client)
 

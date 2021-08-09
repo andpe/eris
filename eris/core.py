@@ -23,7 +23,7 @@ class Core(discord.Client):
     config = None
     modules = None
 
-    def __init__(self, config: Union[str, dict, Config], config_cls: Type[Config] = Config, *args, **kwargs):
+    def __init__(self, config: Union[str, dict, Config], *args, config_cls: Type[Config] = Config, **kwargs):
         """ Create a new bot with the specified config. """
         self.eventhandler = EventHandler()
         self.modules = {}
@@ -95,6 +95,8 @@ class Core(discord.Client):
 
     def run(self, *args, **kwargs):
         """ Run some bootstrap stuff and then run the main bot. """
+        # We import this here to avoid a cyclic import from ruining our day.
+        # pylint: disable=C0415,R0401
         from eris.modules.base import ModuleBase
 
         LOGGER.info("Starting up")

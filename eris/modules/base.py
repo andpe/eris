@@ -5,11 +5,10 @@ import inspect
 import logging
 from typing import TypeVar, Generic
 
-from discord.client import Client
-
+from eris.core import Core
 from eris.events.handler import EventHandler, PRIO_LOW
 
-ClientType = TypeVar('ClientType', bound=Client)
+ClientType = TypeVar('ClientType', bound=Core)
 
 
 class GenericModuleBase(Generic[ClientType]):
@@ -50,4 +49,4 @@ class GenericModuleBase(Generic[ClientType]):
         self.eventhandler.register_handler(str(self.__class__.__qualname__), self.default_priority, hook)
 
 
-ModuleBase = GenericModuleBase[Client]
+ModuleBase = GenericModuleBase[Core]

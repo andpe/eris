@@ -3,7 +3,7 @@ import json
 import logging
 from importlib import import_module
 from types import ModuleType
-from typing import Union
+from typing import Union, Type
 
 import discord
 
@@ -11,21 +11,19 @@ from eris.config import Config
 from eris.decorators.admin import AdminOnly
 from eris.events.factory import EventFactory
 from eris.events.handler import EventHandler
-from eris.modules.base import ModuleBase
 
 logging.basicConfig()
 LOGGER = logging.getLogger(__name__)
 
 
 class Core(discord.Client):
-
     """ Main class for handling the bot logic. """
 
     eventhandler = None
     config = None
     modules = None
 
-    def __init__(self, config: Union[str, Config], *args, **kwargs):
+    def __init__(self, config: Union[str, dict, Config], config_cls: Type[Config] = Config, *args, **kwargs):
         """ Create a new bot with the specified config. """
         self.eventhandler = EventHandler()
         self.modules = {}
@@ -35,11 +33,15 @@ class Core(discord.Client):
             with open(config, 'r') as configfile:
                 cfg = json.load(configfile)
 
-            self.config = Config.parse_obj(cfg)
+            self.config = config_cls.parse_obj(cfg)
         elif isinstance(config, Config):
             self.config = config
+        elif isinstance(config, dict) and config_cls:
+            self.config = config_cls.parse_obj(config)
         else:
-            raise TypeError("config should be of either an instance or sublcass of eris.Config")
+            raise TypeError("config should be of either an instance/sublcass of eris.Config "
+                            "(or a dict compatible with it)"
+                            )
 
         AdminOnly.register_config(self.config)
         EventFactory.init()
@@ -66,7 +68,8 @@ class Core(discord.Client):
 
         LOGGER.info("Client is ready and listening")
 
-    async def on_voice_state_update(self, member: discord.Member, before: discord.VoiceState, after: discord.VoiceState):
+    async def on_voice_state_update(self, member: discord.Member, before: discord.VoiceState,
+                                    after: discord.VoiceState):
         """ React to users changing their voice states. """
         if not self.is_ready():
             LOGGER.warning("Ignored event that arrived before we were ready.")
@@ -91,6 +94,9 @@ class Core(discord.Client):
             LOGGER.warning("No event handler registered... somehow, carrying on for now.")
 
     def run(self, *args, **kwargs):
+        """ Run some bootstrap stuff and then run the main bot. """
+        from eris.modules.base import ModuleBase
+
         LOGGER.info("Starting up")
 
         modules = self.config.get_modules()

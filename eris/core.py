@@ -97,7 +97,7 @@ class Core(discord.Client):
         """ Run some bootstrap stuff and then run the main bot. """
         # We import this here to avoid a cyclic import from ruining our day.
         # pylint: disable=C0415,R0401
-        from eris.modules.base import ModuleBase
+        from eris.modules.base import GenericModuleBase
 
         LOGGER.info("Starting up")
 
@@ -110,7 +110,7 @@ class Core(discord.Client):
             LOGGER.debug("Loading module %(name)s (%(path)s)", module)
             # Build module and register some properties on it.
             modcls: ModuleType = import_module(module.path)
-            mod: ModuleBase = getattr(modcls, module.name)()
+            mod: GenericModuleBase[Core] = getattr(modcls, module.name)()
             mod.client = self
             mod.eventhandler = self.eventhandler
 

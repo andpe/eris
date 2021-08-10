@@ -1,5 +1,5 @@
 """ Configuration class for the eris. """
-from typing import List
+from typing import List, Optional
 
 import pydantic
 
@@ -11,6 +11,7 @@ class Config(pydantic.BaseModel):
     """ Configuration class for the eris. """
 
     modules: List[ModuleConfig] = []
+    admins: Optional[List[str]]
     token: str
 
     def get_modules(self) -> List[ModuleConfig]:

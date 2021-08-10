@@ -17,14 +17,35 @@ LOGGER = logging.getLogger(__name__)
 
 
 class Core(discord.Client):
-    """ Main class for handling the bot logic. """
+    """ Main class for handling the bot logic.
+
+    Handles loading modules and routing events to the event handler.
+    """
 
     eventhandler = None
     config = None
     modules = None
 
     def __init__(self, config: Union[str, dict, Config], *args, config_cls: Type[Config] = Config, **kwargs):
-        """ Create a new bot with the specified config. """
+        """ Create a new bot with the specified config.
+
+        Parameters
+        --------
+        config:
+            The configuration to use when starting up the bot.
+
+            This can be either a string (a path to a file to load), a dictionary or a Config instance (or subclass).
+            Dicts must be valid according to config_cls (which is :class:`Config` by default.
+        config_cls:
+            The configuration class to use when instantiating the config (if a Config or sublcass of it is not passed).
+
+        args:
+            This gets passed on to discord.py
+
+        kwargs:
+            This gets passed on to discord.py
+
+        """
         self.eventhandler = EventHandler()
         self.modules = {}
 
@@ -50,7 +71,7 @@ class Core(discord.Client):
         super().__init__(*args, **kwargs)
 
     async def on_message(self, message):
-        """ Handles incoming messages. """
+        """ Handles incoming messages from discord.py. """
         if not self.is_ready():
             LOGGER.warning("Ignored event that arrived before we were ready.")
             return
@@ -95,17 +116,24 @@ class Core(discord.Client):
 
     def run(self, *args, **kwargs):
         """ Run some bootstrap stuff and then run the main bot. """
+        LOGGER.info("Starting up")
+
+        self._load_modules()
+
+        super().run(
+            *((self.config.get_token(),) + args),
+            **kwargs
+        )
+
+    def _load_modules(self):
+        """ Load the modules that have been enabled in the configuration. """
         # We import this here to avoid a cyclic import from ruining our day.
         # pylint: disable=C0415,R0401
         from eris.modules.base import GenericModuleBase
-
-        LOGGER.info("Starting up")
-
         modules = self.config.get_modules()
         LOGGER.info("Loading bot with the following modules loaded: %s", ', '.join(list(map(
             lambda m: m.name, modules
         ))))
-
         for module in modules:
             LOGGER.debug("Loading module %(name)s (%(path)s)", module)
             # Build module and register some properties on it.
@@ -121,8 +149,3 @@ class Core(discord.Client):
             # Register events and scan for hook decorators.
             mod.register()
             mod.scan_decorators()
-
-        super().run(
-            *((self.config.get_token(),) + args),
-            **kwargs
-        )

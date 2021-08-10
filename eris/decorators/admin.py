@@ -34,7 +34,6 @@ class AdminOnly(BaseDecorator):
 
     def __call__(self, func):
         """ Handle the function call. """
-
         cls = self.__class__
 
         @wraps(func)

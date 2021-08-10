@@ -135,7 +135,10 @@ class Core(discord.Client):
             lambda m: m.name, modules
         ))))
         for module in modules:
-            LOGGER.debug("Loading module %(name)s (%(path)s)", module)
+            LOGGER.debug("Loading module %(name)s (%(path)s)", {
+                'name': module.name,
+                'path': module.path
+            })
             # Build module and register some properties on it.
             modcls: ModuleType = import_module(module.path)
             mod: GenericModuleBase[Core] = getattr(modcls, module.name)()

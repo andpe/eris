@@ -2,6 +2,8 @@
 
 Contains the definition of a hook and some useful constants.
 """
+from typing import Literal, Union
+
 from eris.events.types.eventbase import EventBase
 
 HOOK_EAT_NONE = 0
@@ -21,23 +23,27 @@ class Hook:
     callback: callable = None
 
     def __init__(self, name: str, _type: str, callback: callable = None, contains: str = None,
-                 match_criteria: str = 'all'):
+                 match_criteria: Union[Literal['all'], Literal['any']] = 'all'):
         """ Create a new hook.
 
-        :param name: Name of the hook, must be unique for the module.
-        :type name: str
-        :param type: What type of event this hook will listen for.
-        :type type: str
-        :param callback: Function to call when a match has been found.
-        :type callback: callable
-        :param contains: Keyword argument for checking the contents of the event.
-        :type contains: str
-        :param match_criteria: 'all' for requiring all requirements to match 'any' to be satisified with any.
+        Parameters
+        ---------
+        name:
+            Name of the hook, must be unique for the module.
+        _type:
+            What type of event this hook will listen for.
+        callback:
+            Function to call when a match has been found.
+        contains:
+            Keyword argument for checking the contents of the event.
+        match_criteria:
+            'all' for requiring all requirements to match 'any' to be satisified with any.
         :type match_criteria: str
         """
         self.name = name
         self.type = _type
         self.callback = callback
+        # TODO: Replace this with some sort of callback/matcher implementation.
         self.contains = contains
         self.match_criteria = match_criteria
 

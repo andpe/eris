@@ -1,7 +1,7 @@
 """ Base event type. """
 
-class EventBase:
 
+class EventBase:
     """ Common event base for all events. """
 
     body = None

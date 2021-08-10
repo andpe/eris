@@ -34,17 +34,19 @@ class AdminOnly(BaseDecorator):
 
     def __call__(self, func):
         """ Handle the function call. """
+        cls = self.__class__
+
         @wraps(func)
         async def wrapped_f(*args, **kwargs):
             event: EventBase = args[self._EVENT_OFFSET]
 
             # Ignore E1135 and 36 because of a false positive here.
             # pylint: disable=E1135
-            if 'admins' not in self.__class__.config:
+            if not cls.config.admins:
                 return HOOK_EAT_NONE
 
             # pylint: disable=E1136
-            if str(event.actual.author.id) in self.__class__.config['admins']:
+            if str(event.actual.author.id) in cls.config.admins:
                 res = await func(*args, **kwargs)
                 return res
 
